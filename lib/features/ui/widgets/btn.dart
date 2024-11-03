@@ -17,8 +17,11 @@ Widget btnCal ({
         color: c ,
         child: Padding(
           padding: const EdgeInsets.only(left: 10 , right: 10 , top: 5 , bottom: 5 ),
-          child: Text(text,
-              style: TextStyle(fontSize: 36 ,  color: textColor)
+          child: Padding(
+            padding: const EdgeInsets.all(17.0),
+            child: Text(text,
+                style: TextStyle(fontSize: 20 ,  color: textColor)
+            ),
           ),
         )
     ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:aura/localVariables/local_variables.dart';
+import 'colors.dart';
 
 TextStyle auraFontFayrozi30 =
     TextStyle(color: firozi, fontSize: 30, fontWeight: FontWeight.bold);

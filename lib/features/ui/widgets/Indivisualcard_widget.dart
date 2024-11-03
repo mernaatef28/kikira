@@ -1,98 +1,91 @@
 import 'package:flutter/material.dart';
-import '../localVariables/local_variables.dart';
-import 'package:aura/localVariables/styles.dart';
+import 'package:kikira/core/theming/colors.dart';
+import 'package:kikira/core/theming/styles.dart';
 
-class AddProductCard extends StatelessWidget {
-  final String addProductImageAssets;
+class IndivisualCard_Widget extends StatelessWidget {
+  final String paitentName;
   final String addproductName;
-  final String addProductCategory;
-  final VoidCallback editPagePush;
-  final Function(String) deleteProduct; // Function to delete with document ID
-  final String documentId; // Document ID
+  final String paitentId;
+  final VoidCallback patientDisplayPush;
+  final Function(String) deletePatient;
 
-  AddProductCard({
-    required this.addProductCategory,
+  IndivisualCard_Widget({
+    required this.paitentId,
     required this.addproductName,
-    required this.addProductImageAssets,
-    required this.editPagePush,
-    required this.deleteProduct,
-    required this.documentId, // Initialize documentId
+    required this.paitentName,
+    required this.patientDisplayPush,
+    required this.deletePatient,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20.0),
-            color: Colors.grey[100],
-          ),
-          padding: EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 100.0,
-                height: 100.0,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(addProductImageAssets),
-                    fit: BoxFit.cover, // Ensures image fits nicely
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: Container(
+        width: double.infinity,  // Set the width to take the full screen
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20.0),
+          color: Colors.white,
+        ),
+        padding: EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              width: 100.0,
+              height: 100.0,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/images/person.png"),
+                  fit: BoxFit.fitWidth,  // Ensures image fits nicely
+                ),
+                borderRadius: BorderRadius.circular(25.0),
+              ),
+            ),
+            SizedBox(width: 20),  // Add some space between the image and text
+            Expanded(  // Use Expanded to make sure the content takes the available space
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    paitentName,
+                    style: aurabold25,
                   ),
-                  borderRadius: BorderRadius.circular(25.0),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 30),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      addproductName,
-                      style: aurabold25,
-                    ),
-                    Text(
-                      addProductCategory,
-                      style: auraFontboldgray15,
-                    ),
-                    SizedBox(height: 8),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          MaterialButton(
-                            onPressed: editPagePush,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                            color: firozi,
-                            child: Icon(
-                              Icons.edit,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(width: 30),
-                          MaterialButton(
-                            onPressed: () => deleteProduct(documentId), // Pass the document ID to the delete function
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                            color: babyRose,
-                            child: Icon(
-                              Icons.delete,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+                  Text(
+                    paitentId,
+                    style: auraFontboldgray15,
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      MaterialButton(
+                        onPressed: patientDisplayPush,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        color: colorManager.kikiYellow,
+                        child: Icon(
+                          Icons.contact_page_outlined,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                      SizedBox(width: 16),
+                      MaterialButton(
+                        onPressed: () => deletePatient(paitentId),  // Ensure this passes the patient ID
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        color: colorManager.kikiOrange,
+                        child: Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
