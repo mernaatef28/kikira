@@ -1,16 +1,24 @@
-# kikira
+<h1 align="center" id="title">Kikira</h1>
 
-A new Flutter project.
+<p align="center"><img src="https://github.com/mernaatef28/kikira/blob/main/assets/kikirascreens/1.png?raw=true" alt="project-image"></p>
 
-## Getting Started
+<p id="description">This Flutter application visualizes patient sugar percentage data over time using an interactive line chart enhancing data comprehension for healthcare providers. It fetches and displays patient information from a remote API ensuring a seamless user experience with real-time updates. The UI is designed for easy navigation featuring data cards and a chart that starts from zero on both axes for accurate representation.</p>
 
-This project is a starting point for a Flutter application.
+<h2>🚀 Demo</h2>
 
-A few resources to get you started if this is your first Flutter project:
+[https://github.com/mernaatef28/kikira/blob/main/assets/kikirascreens/1.png?raw=true](https://github.com/mernaatef28/kikira/blob/main/assets/kikirascreens/1.png?raw=true)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+<h2>Project Screenshots:</h2>
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<img src="https://github.com/mernaatef28/kikira/blob/main/assets/kikirascreens/2.png?raw=true" alt="project-screenshot" width="" height="">
+
+  
+  
+<h2>🧐 Features</h2>
+
+Here're some of the project's best features:
+
+*   .net
+*   flutter
+*   fl\_chart
+*   api
