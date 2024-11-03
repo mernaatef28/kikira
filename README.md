@@ -11,6 +11,8 @@
 <h2>Project Screenshots:</h2>
 
 <img src="https://github.com/mernaatef28/kikira/blob/main/assets/kikirascreens/2.png?raw=true" alt="project-screenshot" width="" height="">
+<h2> figma design </h2>
+<img src="https://github.com/mernaatef28/kikira/blob/main/assets/screenshot/Screenshot%202024-11-01%20164838.png?raw=true" alt="project-screenshot" width="" height="">
 
   
   
