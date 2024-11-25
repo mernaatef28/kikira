@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 Widget btnCal ({
   required String text ,
-  required Function() event ,
+  required  Function() event ,
   Color c = Colors.grey ,
   Color textColor = Colors.white ,
 })

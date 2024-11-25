@@ -14,7 +14,7 @@ import 'package:kikira/main.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const kiki_Ra_app());
+    await tester.pumpWidget( myapp());
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
@@ -28,4 +28,8 @@ void main() {
     expect(find.text('0'), findsNothing);
     expect(find.text('1'), findsOneWidget);
   });
+}
+
+Widget myapp() {
+  return Text("happy maro") ;
 }

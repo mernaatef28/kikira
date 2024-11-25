@@ -1,23 +1,36 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:kikira/core/api/apiservice.dart';
+import 'package:kikira/core/api/apiservicetoken.dart';
+import 'package:kikira/core/api/geminiservice.dart';
+import 'package:kikira/core/classes/patientdto.dart';
 import 'package:kikira/core/theming/colors.dart';
+import 'package:kikira/core/theming/styles.dart';
+import 'package:kikira/features/ui/widgets/barchartpatient.dart';
 import 'package:kikira/features/ui/widgets/chartpatient.dart';
-import 'package:kikira/features/ui/widgets/dataCard.dart';
-import 'package:kikira/kiki_app.dart';
+
 
 class Paitentdisplay extends StatefulWidget {
-  const Paitentdisplay({super.key, required this.patientName});
   final String patientName;
+  late String hospitalName;
+  final bool scrollToChart;
+
+  Paitentdisplay(
+      {super.key,
+        required this.patientName,
+        this.scrollToChart = false,
+        this.hospitalName = 'unknown'});
 
   @override
   State<Paitentdisplay> createState() => _PaitentdisplayState();
 }
 
 class _PaitentdisplayState extends State<Paitentdisplay> {
+  String selectedMetric = 'sugarPercentage';
+  String selectedChart = 'lineChart'; // Default chart type
   bool isLoading = true;
   List<PatientDto> patientData = [];
+  String geminiResponse = '';
   final ApiService apiService = ApiService();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -25,73 +38,231 @@ class _PaitentdisplayState extends State<Paitentdisplay> {
     fetchPatientData(widget.patientName);
   }
 
-  // Fetch patient data by name
   void fetchPatientData(String name) async {
     try {
       var data = await apiService.getPatientDataByName(name);
+      String requestText = data.join(" ");
+     // String? geminiResponse = await GeminiService().getResponse(requestText);
+
       setState(() {
         patientData = data;
-        isLoading = false; // Set loading to false after data is fetched
+        isLoading = false;
+       // this.geminiResponse = geminiResponse ?? '';
       });
+
+      if (widget.scrollToChart) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollToChartSection();
+        });
+      }
     } catch (e) {
       print('Error fetching patient data: $e');
       setState(() {
-        isLoading = false; // Ensure loading is set to false even on error
+        isLoading = false;
       });
     }
+  }
+
+  void _scrollToChartSection() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: Duration(seconds: 2),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  Widget _buildMetricButton(String metric, String assetPath) {
+    final bool isSelected = selectedMetric == metric;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedMetric = metric;
+        });
+      },
+      child: MouseRegion(
+        onEnter: (_) {
+          setState(() {
+            selectedMetric = metric;
+          });
+        },
+        child: Container(
+          width: 150,
+          height: 80,
+          decoration: BoxDecoration(
+            color: isSelected ? colorManager.kikiMint : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected ? colorManager.kikiFirozi : Colors.grey,
+              width: 2,
+            ),
+            boxShadow: isSelected
+                ? [
+              BoxShadow(
+                  color: Colors.teal.withOpacity(0.6),
+                  blurRadius: 5,
+                  spreadRadius: 0.4)
+            ]
+                : [],
+          ),
+          child: Center(
+            child: Image.asset(
+              assetPath,
+              width: 50,
+              height: 50,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  Widget _buildChartButton(String chartType, String assetPath) {
+    final bool isSelected = selectedChart == chartType;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedChart = chartType;
+        });
+      },
+      child: Container(
+        width: 150,
+        height: 80,
+        decoration: BoxDecoration(
+          color: isSelected ? colorManager.kikiMint : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? colorManager.kikiFirozi : Colors.grey,
+            width: 2,
+          ),
+        ),
+        child: Center(
+          child: Image.asset(
+            assetPath,
+            width: 70,
+            height: 70,
+            color: isSelected? Colors.white : null ,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: colorManager.kikiKohly,
+        backgroundColor: colorManager.kikiFirozi,
         title: Text(widget.patientName, style: TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_outlined, color: Colors.white),
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => kiki_Ra_app()));
+            Navigator.pop(context);
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.info_outline, color: colorManager.kikiGray),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("Patients Chart", style: TextStyle(fontSize: 20)),
+                    content: Text(geminiResponse, style: TextStyle(fontSize: 16)),
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: Container(
-        color: colorManager.kikiYellow,
-        padding: EdgeInsets.all(16.0), // Add padding for better layout
-        child: SingleChildScrollView( // Wrap in SingleChildScrollView for scrolling
+        height: double.infinity,
+        color: colorManager.kikiGray,
+        padding: EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          controller: _scrollController,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Person image at the top
-              Container(
-                width: 300.0,
-                height: 300,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("assets/images/person.png"),
-                    fit: BoxFit.fitWidth,
+              Row(
+                children: [
+                  ClipOval(
+                    child: Container(
+                      width: 150.0,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage("assets/images/12.png"),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
                   ),
-                  borderRadius: BorderRadius.circular(25.0),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 30.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(widget.patientName, style: TextStyle(fontSize: 20)),
+                        Text(widget.hospitalName, style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Text("Biological Indicator" ,style: auraFontFayrozi25,) ,
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildMetricButton('sugarPercentage', 'assets/images/sugar.png'),
+                    SizedBox(width: 10),
+                    _buildMetricButton('bloodPressure', 'assets/images/blood.png'),
+                    SizedBox(width: 10),
+                    _buildMetricButton('averageTemperature', 'assets/images/temperature.png'),
+                    SizedBox(width: 10),
+
+                  ],
                 ),
               ),
-              SizedBox(height: 20), // Spacer between image and data cards
-              // Display data cards based on fetched data
-              if (isLoading) // Show loading indicator if data is being fetched
-                Center(child: CircularProgressIndicator())
-              else if (patientData.isNotEmpty)
-                ...patientData.map((patient) {
-                  return dataCard(
-                    date: patient.date,
-                    time: patient.time,
-                    SugerPersentage: patient.sugarPercentage.toString(),
-                  );
-                }).toList()
-              else
-                Text('No patient data available.'),
-              SizedBox(height: 20), // Spacer between data and chart
-              Text("Sugar Percentage Chart", style: TextStyle(fontSize: 20)),
-              // Add a chart that expands to fit available space
+              Text("Chart Type" , style: auraFontFayrozi25,) ,
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0 , right: 8),
+                      child: _buildChartButton('lineChart', 'assets/images/6.png'),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: _buildChartButton('barChart', 'assets/images/5.png'),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Text("$selectedMetric - $selectedChart", style: TextStyle(fontSize: 20)),
               SizedBox(
-                height: 300, // Specify a height for the chart
-                child: LineChartWidget(patientData: patientData),
+                height: 350,
+                child: selectedChart == 'lineChart'
+                    ? LineChartWidget(
+                  patientData: patientData,
+                  metric: selectedMetric,
+                )
+                    : BarChartPatient(
+                  patientData: patientData,
+                  metric: selectedMetric,
+                ),
               ),
             ],
           ),
@@ -100,3 +271,21 @@ class _PaitentdisplayState extends State<Paitentdisplay> {
     );
   }
 }
+
+/*Text("Average Temperature Chart", style: TextStyle(fontSize: 20)),
+              SizedBox(
+                height: 300,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: LineChartWidget(patientData: patientData, metric: 'averageTemperature',),
+                ),
+              ),
+              SizedBox(height: 20),
+              Text("Blood Pressure Chart", style: TextStyle(fontSize: 20)),
+              SizedBox(
+                height: 300,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: LineChartWidget(patientData: patientData, metric: 'bloodPressure',),
+                ),
+              ),*/

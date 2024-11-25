@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kikira/core/theming/colors.dart';
+import 'package:kikira/core/theming/colors.dart';
 import 'package:kikira/core/theming/styles.dart';
 
 class IndivisualCard_Widget extends StatelessWidget {
@@ -7,14 +8,18 @@ class IndivisualCard_Widget extends StatelessWidget {
   final String addproductName;
   final String paitentId;
   final VoidCallback patientDisplayPush;
-  final Function(String) deletePatient;
+  final VoidCallback goToChart;
+  final Color cardColor;
+  final String hospitalName;
 
   IndivisualCard_Widget({
     required this.paitentId,
     required this.addproductName,
     required this.paitentName,
     required this.patientDisplayPush,
-    required this.deletePatient,
+    required this.goToChart,
+    required this.cardColor,
+    required this.hospitalName ,
   });
 
   @override
@@ -22,10 +27,10 @@ class IndivisualCard_Widget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Container(
-        width: double.infinity,  // Set the width to take the full screen
+        width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.0),
-          color: Colors.white,
+          color: cardColor,
         ),
         padding: EdgeInsets.all(16),
         child: Row(
@@ -35,14 +40,14 @@ class IndivisualCard_Widget extends StatelessWidget {
               height: 100.0,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage("assets/images/person.png"),
-                  fit: BoxFit.fitWidth,  // Ensures image fits nicely
+                  image: AssetImage("assets/images/12.png"),
+                  fit: BoxFit.fitWidth,
                 ),
                 borderRadius: BorderRadius.circular(25.0),
               ),
             ),
-            SizedBox(width: 20),  // Add some space between the image and text
-            Expanded(  // Use Expanded to make sure the content takes the available space
+            SizedBox(width: 20),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -50,8 +55,12 @@ class IndivisualCard_Widget extends StatelessWidget {
                     paitentName,
                     style: aurabold25,
                   ),
-                  Text(
+                  /*Text(
                     paitentId,
+                    style: auraFontboldgray15,
+                  ),*/
+                  Text(
+                    hospitalName,
                     style: auraFontboldgray15,
                   ),
                   SizedBox(height: 8),
@@ -62,7 +71,7 @@ class IndivisualCard_Widget extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                         ),
-                        color: colorManager.kikiYellow,
+                        color: colorManager.kikiFirozi,
                         child: Icon(
                           Icons.contact_page_outlined,
                           color: Colors.white,
@@ -70,13 +79,13 @@ class IndivisualCard_Widget extends StatelessWidget {
                       ),
                       SizedBox(width: 16),
                       MaterialButton(
-                        onPressed: () => deletePatient(paitentId),  // Ensure this passes the patient ID
+                        onPressed: goToChart,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                         ),
-                        color: colorManager.kikiOrange,
+                        color: colorManager.kikiMint,
                         child: Icon(
-                          Icons.delete,
+                          Icons.show_chart,
                           color: Colors.white,
                         ),
                       ),
@@ -91,3 +100,4 @@ class IndivisualCard_Widget extends StatelessWidget {
     );
   }
 }
+

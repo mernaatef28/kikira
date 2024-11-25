@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:kikira/core/api/apiservicetoken.dart';
+import 'package:kikira/core/classes/patientdto.dart';
+import 'package:kikira/core/classes/patientdtoname.dart';
 import 'apiservice.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -8,7 +11,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final ApiService apiService = ApiService();
-  List<String> names = [];
+  List<PatientDtoName> namesAndState = [];
   List<PatientDto> patientData = [];
   final String name = "John Doe" ;
 
@@ -23,7 +26,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       var data = await apiService.getAllNames();
       setState(() {
-        names = data;
+        namesAndState = data;
       });
     } catch (e) {
       print('Error fetching names: $e');
@@ -53,8 +56,8 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Text('Fetch Patient Data'),
           ),
           // Display fetched names
-          if (names.isNotEmpty)
-            Text('Names: ${names.join(", ")}'),
+          if (namesAndState.isNotEmpty)
+            Text('Names: ${namesAndState.join(", ")}'),
           // Display patient data
           if (patientData.isNotEmpty)
             Expanded(
