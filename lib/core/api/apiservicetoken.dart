@@ -1,19 +1,25 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:kikira/core/classes/getallcritical.dart';
 import 'package:kikira/core/classes/gethospitals.dart';
 import 'package:kikira/core/classes/patientdto.dart';
 import 'package:kikira/core/classes/patientdtoname.dart';
 import 'package:kikira/core/classes/user.dart';
-//import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 class ApiService {
   final String baseUrl = 'https://anteshnatsh.tryasp.net';
-   String? _token , username , userHospitalName; // Private variable to store the token
 
+  // Variables for token and user info
+  String? _token;
+  String? username;
+  String? userHospitalName;
 
+  // Secure storage instance
+  final storage = FlutterSecureStorage();
 
-  // Login method that sets the token
+  /// Login method that sets the token and user details
   Future<User> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/api/Account/Login');
 
@@ -33,52 +39,43 @@ class ApiService {
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         _token = responseData['token'];
-        username= responseData['username'];
+        username = responseData['username'];
         userHospitalName = responseData['hospitalName'];
-        //_token = _token?.replaceAll('\n', '').trim();
-        //_token = "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJ2aWN0b3JuaXNlbTAxQGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlVzZXIiLCJleHAiOjE3MzI4MzcwOTIsImlzcyI6Imh0dHBzOi8vYW50ZXNobmF0c2gudHJ5YXNwLm5ldCIsImF1ZCI6Ik15U2VjdXJlS2V5In0.WJDfzQTL1SA6VPCM4ct123Gif76lHj8acSQDYUCamDg" ;
 
-        // Set the token
-        saveToken(_token!) ;
+        await saveToken(_token!);
+        await saveUserNameandHospitalName(username!, userHospitalName!);
         print('Token updated: $_token');
-
-        // save username and hospitalname on the local storage
-        saveUserNameandHospitalName(username!, userHospitalName!  ) ;
-        print ("username and hospitalname passed to save function  ") ;
-
+        print('Login successful: Token updated.');
         return User.fromJson(responseData);
       } else {
-        print('Login failed: ${response.statusCode}');
-        throw Exception('Login failed');
+        throw Exception(
+            'Login failed with status code: ${response.statusCode}');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('Error during login: $e');
+      print('StackTrace: $stackTrace');
       throw Exception('Error during login: $e');
     }
   }
 
-
-
-// Create a secure storage instance
-  final storage = FlutterSecureStorage();
-
-// Save token
+  /// Save token in secure storage
   Future<void> saveToken(String token) async {
     await storage.write(key: 'auth_token', value: token);
   }
 
-// Retrieve token
+  /// Retrieve token from secure storage
   Future<String?> getToken() async {
     return await storage.read(key: 'auth_token');
   }
 
-// Delete token
+  /// Delete token from secure storage
   Future<void> deleteToken() async {
     await storage.delete(key: 'auth_token');
   }
 
 // Save token
-  Future<void> saveUserNameandHospitalName(String username , String userHospitalName) async {
+  Future<void> saveUserNameandHospitalName(String username,
+      String userHospitalName) async {
     await storage.write(key: 'username', value: username);
     await storage.write(key: 'userHospitalName', value: userHospitalName);
   }
@@ -87,15 +84,15 @@ class ApiService {
   Future<String?> getsavedUserName() async {
     return await storage.read(key: 'username');
   }
+
   Future<String?> getsavedUserHospitalName() async {
     return await storage.read(key: 'userHospitalName');
   }
 
   // Example of using the token in an API call
   Future<List<PatientDtoName>> getAllNames() async {
-    //_token = "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJ2aWN0b3JuaXNlbTAxQGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlVzZXIiLCJleHAiOjE3MzI4MzcwOTIsImlzcyI6Imh0dHBzOi8vYW50ZXNobmF0c2gudHJ5YXNwLm5ldCIsImF1ZCI6Ik15U2VjdXJlS2V5In0.WJDfzQTL1SA6VPCM4ct123Gif76lHj8acSQDYUCamDg" ;
     final _token = await getToken();
-    print(_token) ;
+    print(_token);
     if (_token == null) {
       throw Exception('User is not logged in. Token is missing.');
     }
@@ -109,31 +106,28 @@ class ApiService {
           'Authorization': 'Bearer $_token',
           'Content-Type': 'application/json',
         },
-
       );
-      print(response) ;
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         print('All Names Response: $data');
         return data.map((json) => PatientDtoName.fromJson(json)).toList();
       } else {
-        print("${response.reasonPhrase}") ;
-        throw Exception('Failed to load names response state code : ${response.statusCode}');
-
+        throw Exception(
+            'Failed to fetch names. Status code: ${response.statusCode}');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('Error fetching names: $e');
-      throw Exception('Failed to fetch names');
+      print('StackTrace: $stackTrace');
+      throw Exception('Error fetching names: $e');
     }
-
   }
 
-  // Method to get all critical data
+  /// Fetch all critical data
   Future<List<GetAllCritical>> getAllCritical() async {
-
     final url = Uri.parse('$baseUrl/api/Graph/GetAllCritical');
-    final _token= await getToken() ;
+    final _token = await getToken();
+
     try {
       final response = await http.get(
         url,
@@ -141,30 +135,96 @@ class ApiService {
           'Authorization': 'Bearer $_token',
           'Content-Type': 'application/json',
         },
-
       );
-      print(response);
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        print('Critical Data Response: $data');
+        final responseBody = response.body;
+
+        // Check if response body is empty or null
+        if (responseBody == null || responseBody.isEmpty) {
+          throw Exception('Empty response body from the API');
+        }
+
+        final List<dynamic> data = json.decode(responseBody);
+
+        // Check if data is null or empty after decoding
+        if (data == null || data.isEmpty) {
+          throw Exception('No critical data found');
+        }
+
         return data.map((json) => GetAllCritical.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load critical data');
+        throw Exception('Failed to fetch critical data. Status code: ${response.statusCode}');
       }
-
-    }
-    catch (e) {
-      print('Error fetching criticals : $e');
-      throw Exception('Failed to fetch criticals');
+    } catch (e, stackTrace) {
+      print('Error fetching critical data: $e');
+      print('StackTrace: $stackTrace');
+      throw Exception('Error fetching critical data: $e');
     }
   }
-    // Other methods use the token in the same way
-  Future<List<PatientDto>> getPatientDataByDateRange(
-      String name, String fromDate, String toDate) async {
-    // Validate inputs
+
+
+
+
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+
+// Save critical data with the current date
+
+  Future<void> saveCriticalDataWithDate(List<GetAllCritical> data) async {
+    // Convert the GetAllCritical list to a list of maps
+    final jsonData = json.encode(
+      data.map((e) => {
+        'count': e.count,
+        'date': e.date,
+        'patients': e.patients.map((patient) => {
+          'id': patient.id,
+          'name': patient.name,
+          'hospitalId': patient.hospitalId,
+        }).toList(),
+      }).toList(),
+    );
+
+    final currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    await _secureStorage.write(key: 'criticalData', value: jsonData);
+    await _secureStorage.write(key: 'criticalDataDate', value: currentDate);
+  }
+
+// Load critical data, resetting if the date is not today's date
+  Future<List<GetAllCritical>> loadCriticalData() async {
+    final storedDate = await _secureStorage.read(key: 'criticalDataDate');
+    final todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    if (storedDate == null || storedDate != todayDate) {
+      // If there's no stored date or the stored date is not today, reset the data
+      await _secureStorage.write(key: 'criticalData', value: null);
+      await _secureStorage.write(key: 'criticalDataDate', value: todayDate);
+      return [];
+    }
+
+    final storedData = await _secureStorage.read(key: 'criticalData');
+
+    // If storedData is null, return an empty list
+    if (storedData == null) {
+      return [];
+    }
+
+    try {
+      return (json.decode(storedData) as List)
+          .map((json) => GetAllCritical.fromJson(json))
+          .toList();
+    } catch (e) {
+      // In case of invalid JSON data
+      print('Error decoding stored data: $e');
+      return [];
+    }
+  }
+
+
+  /// Fetch patient data by date range
+  Future<List<PatientDto>> getPatientDataByDateRange(String name,
+      String fromDate, String toDate) async {
     if (name.isEmpty || fromDate.isEmpty || toDate.isEmpty) {
-      throw Exception('Invalid input parameters');
+      throw Exception('Invalid input parameters.');
     }
 
     final _token = await getToken();
@@ -173,7 +233,8 @@ class ApiService {
     }
 
     final url = Uri.parse(
-        '$baseUrl/api/Graph/${name}/${Uri.encodeComponent(fromDate)}/${Uri.encodeComponent(toDate)}');
+        '$baseUrl/api/Graph/$name/${Uri.encodeComponent(fromDate)}/${Uri
+            .encodeComponent(toDate)}');
 
     try {
       final response = await http.get(
@@ -189,19 +250,20 @@ class ApiService {
         print('Filtered Patient Data Response: $responseData');
         return responseData.map((json) => PatientDto.fromJson(json)).toList();
       } else {
-        print('API Error Response: ${response.body}');
-        throw Exception('Failed to fetch patient data: ${response.statusCode}');
+        throw Exception('Failed to fetch patient data. Status code: ${response
+            .statusCode}');
       }
     } catch (e, stackTrace) {
       print('Error fetching patient data: $e');
       print('StackTrace: $stackTrace');
-      throw Exception('Failed to fetch data');
+      throw Exception('Error fetching patient data: $e');
     }
   }
 
+
   Future<List<PatientDto>> getPatientDataByName(String name) async {
-    final url = Uri.parse('$baseUrl/api/Graph/$name') ;
-    final _token= await getToken() ;
+    final url = Uri.parse('$baseUrl/api/Graph/$name');
+    final _token = await getToken();
     try {
       final response = await http.get(
         url,
@@ -212,49 +274,49 @@ class ApiService {
 
       );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      print('Patient Data Response: $data');
-      return data.map((json) => PatientDto.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load patient data');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        print('Patient Data Response: $data');
+        return data.map((json) => PatientDto.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load patient data');
+      }
     }
-  }
     catch (e) {
       print('Error fetching name:$name $e');
       throw Exception('Failed to fetch name');
     }
+  }
+
 //hospitals that this admin has access on :
 
-  }
-Future<List<GetHospitals>> getHospitalsDetails () async {
-  final url = Uri.parse('$baseUrl/api/Hospital/GetHospitals');
-  final _token= await getToken() ;
-  try {
-    final response = await http.get(
-      url,
-      headers: {
-        'Authorization': 'Bearer $_token',
-        'Content-Type': 'application/json',
-      },
+  /// Fetch hospital details
+  Future<List<GetHospitals>> getHospitalsDetails() async {
+    final token = await getToken();
+    if (token == null) throw Exception('Token is missing.');
 
-    );
-    print(response);
+    final url = Uri.parse('$baseUrl/api/Hospital/GetHospitals');
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      print('Hospitals Data Response: $data');
-      return data.map((json) => GetHospitals.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load hospitals data');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        print('Hospitals Data Response: $data');
+        return data.map((json) => GetHospitals.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load hospitals data');
+      }
     }
-
+    catch (e) {
+      print('Error fetching hospitals : $e');
+      throw Exception('Failed to fetch hospitals ');
+    }
   }
-  catch (e) {
-    print('Error fetching hospitals : $e');
-    throw Exception('Failed to fetch hospitals ');
-  }
-
 }
-}
-
